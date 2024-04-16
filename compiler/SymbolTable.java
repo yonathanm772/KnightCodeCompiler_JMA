@@ -1,3 +1,4 @@
+package compiler;
 import java.util.HashMap;
 
 public class SymbolTable<Key, Variable> {

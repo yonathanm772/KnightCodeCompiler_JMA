@@ -1,8 +1,8 @@
+package compiler;
 
 public class SymbolTest {
 	public static void main(String[] args) {
-    	Variable <Integer> intVariable = new Variable<>(42);
-        Variable <String> stringVariable = new Variable<>("Hello, world!");
+    	Variable intVariable = new Variable("var", "INt", 0);
         SymbolTable<String, Variable> st = new SymbolTable<>();
         
         st.put("apple", intVariable);

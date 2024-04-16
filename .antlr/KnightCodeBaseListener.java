@@ -1,4 +1,4 @@
-// Generated from KnightCode.g4 by ANTLR 4.13.1
+// Generated from /home/jmoreiraalsina/KnightCodeCompiler_JMA/KnightCode.g4 by ANTLR 4.13.1
 package lexparse; 
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * of the available methods.
  */
 @SuppressWarnings("CheckReturnValue")
-public class KnightCodeBaseListener implements KnightCodeListener { 
+public class KnightCodeBaseListener implements KnightCodeListener {
 	/**
 	 * {@inheritDoc}
 	 *
