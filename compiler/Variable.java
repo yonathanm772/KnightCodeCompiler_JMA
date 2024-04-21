@@ -1,4 +1,13 @@
+/**
+  *Variable class that stores the name, type and memory location of a variable
+  * @author Jonathan Moreira Alsina
+  * @version 1.0
+  * Assignment 5
+  * CS322 - Compiler Construction
+  * Spring 2024
+  **/
 package compiler;
+
 public class Variable {
     private String name;
     private String type;
@@ -10,7 +19,7 @@ public class Variable {
         this.type = type;
         this.memory_location = memory_location;
     }
-
+    // Getter for 
     public String getName() {
         return type;
     }
@@ -18,7 +27,7 @@ public class Variable {
     public String getType() {
         return type;
     }
-
+    // Getter for memory location
     public int getMemLocation() {
         return memory_location;
     }
