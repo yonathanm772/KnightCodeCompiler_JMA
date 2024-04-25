@@ -1,6 +1,5 @@
  /**
-  *Class that extends and overrides methods from ANTLR generated BaseVisitor class.
-  *It will be  performing bytecode operations for grammar rules
+  *This class extends the BaseVisitor from the ANTLR libraries and overrides some of its methods to perform basic arithmetic and logic
   * @author Jonathan Moreira Alsina
   * @version 1.0
   * Assignment 5
@@ -9,7 +8,7 @@
   **/
 package compiler;
 import lexparse.*;
-import org.objectweb.asm.*;  //classes for generating bytecode
+import org.objectweb.asm.*;
 import java.util.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,9 +18,9 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
 {
 
     private ClassWriter cw;  
-	private MethodVisitor main_visitor; 
-	private String program_name; 
+    private MethodVisitor main_visitor; 
     private Map <String, Variable> symbol_Table; 
+    private String program_name; 
     private int memory_pointer;
 
 
@@ -35,29 +34,29 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
     }//end constructor
 
     /**
-     * Method that will set up the ClassWriter and create the constructor
+     * Creates the default constructor
      * @param name the name of the program that will be created
      */
     public void beginClass(String name){
         
        
-		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+	cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         cw.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC,program_name, null, "java/lang/Object",null);
         
         {
-			MethodVisitor mv=cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-			mv.visitCode();
-			mv.visitVarInsn(Opcodes.ALOAD, 0); //load the first local variable: this
-			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V",false);
-			mv.visitInsn(Opcodes.RETURN);
-			mv.visitMaxs(1,1);
-			mv.visitEnd();
-		}
+		MethodVisitor mv=cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+		mv.visitCode();
+		mv.visitVarInsn(Opcodes.ALOAD, 0); 
+		mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V",false);
+		mv.visitInsn(Opcodes.RETURN);
+		mv.visitMaxs(1,1);
+		mv.visitEnd();
+	}
 
     }
 
     /**
-     * Ends the main method and writes the ClassWriter data into the outputFile
+     * Ends the main method and write data to output file
      */
     public void endClass(){
 
@@ -77,7 +76,7 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
 
     @Override
     /**
-     * Calls the beginClass method which creates the ClassWriter and constructor for the KnightCode class 
+     * Once you enter the file, you create the default object by calling beginClass 
      */
     public Object visitFile(KnightCodeParser.FileContext ctx){
         System.out.println("Entering File");
@@ -88,7 +87,7 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
 
     @Override
     /**
-     * Once we enter DECLERE, a HashMap for the symbol table will be created and the stack memory pointer will be set to zero
+     * Once we enter DECLERE, we create the symbol table to store the variables
      */
     public Object visitDeclare(KnightCodeParser.DeclareContext ctx){
 
@@ -100,10 +99,23 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
         return super.visitDeclare(ctx);
     }
 
+@Override
+    /**
+     * Method that visits the body and initializes the main method
+     */
+    public Object visitBody(KnightCodeParser.BodyContext ctx){
+        
+        System.out.println("Enter Body");
+        
+        main_visitor=cw.visitMethod(Opcodes.ACC_PUBLIC+Opcodes.ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+        main_visitor.visitCode();
+
+        return super.visitBody(ctx);
+    }
+
     @Override
     /**
-     * Once we enter VARIABLE, the name and type will be used to instantiate a new Variable object
-     * using the attributes from the declaration and put it into the symbol table
+     * Once we enter VARIABLE, we create an Object of the Variable class with name and type
      */
     public Object visitVariable(KnightCodeParser.VariableContext ctx){
         
@@ -123,24 +135,12 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
         printSymbolTable();
 
         return super.visitVariable(ctx);
-    }//end visitVariable
-
-    @Override
-    /**
-     * Method that visits the body and initializes the main method
-     */
-    public Object visitBody(KnightCodeParser.BodyContext ctx){
-        
-        System.out.println("Enter Body");
-        
-        main_visitor=cw.visitMethod(Opcodes.ACC_PUBLIC+Opcodes.ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
-        main_visitor.visitCode();
-
-        return super.visitBody(ctx);
     }
+
+    
     
     /**
-     * Evaluates an expression depending on what type of context it is an instance of.
+     * Evaluates an expression depending on the ctx parameter
      * @param ctx the context of the expression that is to be evaluated
      */
     public void evalExpr(KnightCodeParser.ExprContext ctx){
@@ -262,7 +262,7 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
 
 
     /**
-     * Checks if a string is either a number or an identifier in the symbol table, and loads it
+     * It checks if the String operand is an actual integer or an identifier
      * @param operand the string with the ID or value to be loaded
      */
     public void loadInteger(String operand){
@@ -377,7 +377,7 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
     }
     @Override
     /**
-     * Defines a previously declared variable and it is entered when setVar is activated
+     * Sets the value of a declared variable by using the setVar
      */
     public Object visitSetvar(KnightCodeParser.SetvarContext ctx)
     {
@@ -412,7 +412,7 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
 
     @Override
     /**
-     * It will either print out the value of the identifier specified, or a string that is specified (Triggered whenever print is encountered)
+     * It will print either the identifier of a variable or the value of a string
      */
     public Object visitPrint(KnightCodeParser.PrintContext ctx){
 
@@ -444,7 +444,7 @@ public class MyBaseVisitor extends KnightCodeBaseVisitor<Object>
     
     @Override
     /**
-     * Reads an input from the user and store it in the variable whose identifier follows the read call 
+     * Reads an input from the user and store it in the Variable class
      */
     public Object visitRead(KnightCodeParser.ReadContext ctx){
 
